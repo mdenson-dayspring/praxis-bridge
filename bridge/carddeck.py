@@ -55,17 +55,20 @@ class BridgeHand(Hand):
     def sort(self):
         self.cards.sort(key=functools.cmp_to_key(bridgeCompare))
         
-    def toString(self):
-        retString = ''
-        currSuit = -1
-        for c in self.cards:
-            if currSuit != (c & 0x3):
-                currSuit = (c & 0x3)
-                retString += '\n' + suits[currSuit]
-            retString += ' ' + ranks[c >> 2]
+    def toString(self, leftStrings, hand):
+        retString = []
+        for n, l in enumerate(leftStrings):
+            if n == 0:
+                retString.append(l + hand.upper())
+            else:
+                suit = suits[n-1]
+                cards = [c for c in self.cards if (c & 0x3) == n-1]
+                retString.append(l + suit)
+                for c in cards:
+                    retString[n] += ' ' + ranks[c >> 2]
         return retString
         
-handnames = ['East ', 'South', 'West ', 'North']
+handnames = ['East', 'South', 'West', 'North']
 
 class Bridge(object):
     def __init__(self, deck):
@@ -84,11 +87,34 @@ class Bridge(object):
         while len(deck)>0:
             for hn in handnames:
                 self.hands[hn].add(deck.dealcard())
+
+    def printGame(self):
+        middle = ['                    '] * 5
+        left = [''] * 5
+
+        hand = 'North'
+        outStrings = b.hands[hand].toString(middle, hand)
+        for s in outStrings:
+            print(s)
+
+        hand = 'West'
+        west = []
+        for w in b.hands[hand].toString(left, hand):
+            west.append((w + middle[0] + middle[0])[:-len(w)])
+        hand = 'East'
+        outStrings = b.hands[hand].toString(west, hand)
+        for s in outStrings:
+            print(s)
+        
+        hand = 'South'
+        outStrings = b.hands[hand].toString(middle, hand)
+        for s in outStrings:
+            print(s)
+
         
 
 if __name__ == "__main__":
     import sys
     d = Deck()
     b = Bridge(d)
-    for hn in handnames:
-        print(hn + b.hands[hn].toString() + '\n')
+    b.printGame()
