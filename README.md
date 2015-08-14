@@ -18,3 +18,5 @@ WEST                                    EAST
                     ♢ 7 6 5
                     ♡ Q 7 3
                     ♠ 8 7
+
+The idea for this application comes from Programming Praxis.
