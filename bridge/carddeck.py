@@ -61,7 +61,7 @@ class BridgeHand(Hand):
             if n == 0:
                 retString.append(l + hand.upper())
             else:
-                suit = suits[n-1]
+                suit = suits[4-n]
                 cards = [c for c in self.cards if (c & 0x3) == n-1]
                 retString.append(l + suit)
                 for c in cards:
