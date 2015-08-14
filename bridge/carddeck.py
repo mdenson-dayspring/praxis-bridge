@@ -5,9 +5,10 @@ Created on Thu Aug 13 16:14:51 2015
 @author: mdenson
 """
 import random
+import functools
 
-suits = ['♠', '♡', '♢', '♣']
-ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
+suits = ['♣', '♢', '♡', '♠']
+ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
 class Deck(object):
     def __init__(self):
@@ -44,11 +45,27 @@ class Hand(object):
     def sort(self):
         self.cards.sort(reverse=True)
 
+def bridgeCompare(x,y):
+    cmp = (y & 0x3) - (x & 0x3) 
+    if cmp == 0:
+        cmp = (y>>2) - (x>>2)
+    return cmp
+    
 class BridgeHand(Hand):
     def sort(self):
-        self.cards.sort()
+        self.cards.sort(key=functools.cmp_to_key(bridgeCompare))
         
-handnames = ['East', 'South', 'West', 'North']
+    def toString(self):
+        retString = ''
+        currSuit = -1
+        for c in self.cards:
+            if currSuit != (c & 0x3):
+                currSuit = (c & 0x3)
+                retString += '\n' + suits[currSuit]
+            retString += ' ' + ranks[c >> 2]
+        return retString
+        
+handnames = ['East ', 'South', 'West ', 'North']
 
 class Bridge(object):
     def __init__(self, deck):
@@ -72,8 +89,6 @@ class Bridge(object):
 if __name__ == "__main__":
     import sys
     d = Deck()
-    print([d.twoChar(s) for s in d.cards])
     b = Bridge(d)
     for hn in handnames:
-        print(hn + ' ',)
-        print([d.twoChar(s) for s in b.hands[hn].cards])
+        print(hn + b.hands[hn].toString() + '\n')
