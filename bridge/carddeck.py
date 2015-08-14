@@ -6,7 +6,7 @@ Created on Thu Aug 13 16:14:51 2015
 """
 import random
 
-suits = ['s', 'h', 'c', 'd']
+suits = ['♠', '♡', '♣', '♢']
 ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 
 class Deck(object):
@@ -56,4 +56,6 @@ if __name__ == "__main__":
     import sys
     d = Deck()
     b = Bridge(d)
-    print(b.hands['North'].cards)
+    for hn in handnames:
+        print(hn + ' ',)
+        print(b.hands[hn].cards)
