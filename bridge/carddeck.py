@@ -5,19 +5,22 @@ Created on Thu Aug 13 16:14:51 2015
 @author: mdenson
 """
 import random
+import functools
 
-suits = ['s', 'h', 'c', 'd']
-ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+suits = ['♣', '♢', '♡', '♠']
+ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
 class Deck(object):
     def __init__(self):
         self.cards = []
-        for suit in suits:
-            for rank in ranks:
-                self.cards.append(rank+suit)
+        self.cards = [i for i in range(54)]
     
     def __len__(self):
         return len(self.cards)
+        
+    def removeJokers(self):
+        self.cards.remove(53)
+        self.cards.remove(52)
         
     def shuffle(self):
         random.shuffle(self.cards)        
@@ -26,6 +29,11 @@ class Deck(object):
         
     def dealcard(self):
         return self.cards.pop()
+        
+    def twoChar(self, card):
+        if card > 51:
+            return 'JK'
+        return ranks[card >> 2] + suits[card & 0x3]
 
 class Hand(object):
     def __init__(self):
@@ -34,17 +42,43 @@ class Hand(object):
     def add(self, card):
         self.cards.append(card)
         
-handnames = ['East', 'South', 'West', 'North']
+    def sort(self):
+        self.cards.sort(reverse=True)
+
+def bridgeCompare(x,y):
+    cmp = (y & 0x3) - (x & 0x3) 
+    if cmp == 0:
+        cmp = (y>>2) - (x>>2)
+    return cmp
+    
+class BridgeHand(Hand):
+    def sort(self):
+        self.cards.sort(key=functools.cmp_to_key(bridgeCompare))
+        
+    def toString(self):
+        retString = ''
+        currSuit = -1
+        for c in self.cards:
+            if currSuit != (c & 0x3):
+                currSuit = (c & 0x3)
+                retString += '\n' + suits[currSuit]
+            retString += ' ' + ranks[c >> 2]
+        return retString
+        
+handnames = ['East ', 'South', 'West ', 'North']
 
 class Bridge(object):
     def __init__(self, deck):
-        deck.shuffle()
+        deck.removeJokers()
         deck.shuffle()
         self.hands = {}
         for hn in handnames:
-            self.hands[hn] = Hand()
+            self.hands[hn] = BridgeHand()
         
         self.deal(deck)
+        
+        for n, h in self.hands.items():
+            h.sort()
         
     def deal(self, deck):
         while len(deck)>0:
@@ -56,4 +90,5 @@ if __name__ == "__main__":
     import sys
     d = Deck()
     b = Bridge(d)
-    print(b.hands['North'].cards)
+    for hn in handnames:
+        print(hn + b.hands[hn].toString() + '\n')
