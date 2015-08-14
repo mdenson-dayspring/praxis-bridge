@@ -6,18 +6,20 @@ Created on Thu Aug 13 16:14:51 2015
 """
 import random
 
-suits = ['♠', '♡', '♣', '♢']
-ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+suits = ['♠', '♡', '♢', '♣']
+ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
 
 class Deck(object):
     def __init__(self):
         self.cards = []
-        for suit in suits:
-            for rank in ranks:
-                self.cards.append(rank+suit)
+        self.cards = [i for i in range(54)]
     
     def __len__(self):
         return len(self.cards)
+        
+    def removeJokers(self):
+        self.cards.remove(53)
+        self.cards.remove(52)
         
     def shuffle(self):
         random.shuffle(self.cards)        
@@ -26,6 +28,11 @@ class Deck(object):
         
     def dealcard(self):
         return self.cards.pop()
+        
+    def twoChar(self, card):
+        if card > 51:
+            return 'JK'
+        return ranks[card >> 2] + suits[card & 0x3]
 
 class Hand(object):
     def __init__(self):
@@ -34,17 +41,27 @@ class Hand(object):
     def add(self, card):
         self.cards.append(card)
         
+    def sort(self):
+        self.cards.sort(reverse=True)
+
+class BridgeHand(Hand):
+    def sort(self):
+        self.cards.sort()
+        
 handnames = ['East', 'South', 'West', 'North']
 
 class Bridge(object):
     def __init__(self, deck):
-        deck.shuffle()
+        deck.removeJokers()
         deck.shuffle()
         self.hands = {}
         for hn in handnames:
-            self.hands[hn] = Hand()
+            self.hands[hn] = BridgeHand()
         
         self.deal(deck)
+        
+        for n, h in self.hands.items():
+            h.sort()
         
     def deal(self, deck):
         while len(deck)>0:
@@ -55,7 +72,8 @@ class Bridge(object):
 if __name__ == "__main__":
     import sys
     d = Deck()
+    print([d.twoChar(s) for s in d.cards])
     b = Bridge(d)
     for hn in handnames:
         print(hn + ' ',)
-        print(b.hands[hn].cards)
+        print([d.twoChar(s) for s in b.hands[hn].cards])
