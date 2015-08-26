@@ -24,8 +24,6 @@ class Deck(object):
         
     def shuffle(self):
         random.shuffle(self.cards)        
-        random.shuffle(self.cards)        
-        random.shuffle(self.cards)        
         
     def dealcard(self):
         return self.cards.pop()
@@ -73,6 +71,8 @@ handnames = ['East', 'South', 'West', 'North']
 class Bridge(object):
     def __init__(self, deck):
         deck.removeJokers()
+        deck.shuffle()
+        deck.shuffle()
         deck.shuffle()
         self.hands = {}
         for hn in handnames:
