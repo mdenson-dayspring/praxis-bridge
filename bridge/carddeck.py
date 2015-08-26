@@ -25,6 +25,11 @@ class Deck(object):
     def shuffle(self):
         random.shuffle(self.cards)        
         
+    def cut(self):
+        cutpt = random.randint(2, len(self.cards)-1)
+        cards = self.cards[cutpt:]+self.cards[:cutpt]
+        self.cards = cards
+        
     def dealcard(self):
         return self.cards.pop()
         
@@ -73,6 +78,8 @@ class Bridge(object):
         deck.removeJokers()
         deck.shuffle()
         deck.shuffle()
+        deck.shuffle()
+        deck.cut()
         deck.shuffle()
         self.hands = {}
         for hn in handnames:
